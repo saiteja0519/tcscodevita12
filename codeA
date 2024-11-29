@@ -1,0 +1,33 @@
+
+def max_substrings_removed(main_string, substrings):
+  
+    memo = {}
+    
+    def helper(current_string):
+        if current_string in memo:
+            return memo[current_string]
+        
+      
+        max_removed = 0
+        for sub in substrings:
+            idx = current_string.find(sub)
+            if idx != -1:  # If the substring is found in the string
+              
+                new_string = current_string[:idx] + current_string[idx + len(sub):]
+                max_removed = max(max_removed, 1 + helper(new_string))
+        
+        
+        memo[current_string] = max_removed
+        return max_removed
+
+  
+    return helper(main_string)
+
+
+N = int(input().strip())  # Number of substrings
+substrings = input().strip().split()  # List of substrings
+main_string = input().strip()  # The main string
+
+
+result = max_substrings_removed(main_string, substrings)
+print(result)
