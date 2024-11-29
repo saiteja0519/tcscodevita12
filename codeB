@@ -1,0 +1,23 @@
+def alternating_string_max_worth(binary_string, worth):
+    n = len(binary_string)
+    removed_worth = 0  
+    last_char = binary_string[0]
+    last_index = 0
+
+    for i in range(1, n):
+        current_char = binary_string[i]
+        if current_char == last_char:
+           
+            if worth[i] > worth[last_index]:
+                removed_worth += worth[last_index]
+                last_char = current_char  
+                last_index = i  
+            else:
+                removed_worth += worth[i]
+        else:           
+            last_char = current_char
+            last_index = i
+    return removed_worth
+binary_string = input().strip()
+worth = list(map(int, input().split()))
+print(alternating_string_max_worth(binary_string, worth))
