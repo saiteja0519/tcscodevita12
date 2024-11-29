@@ -1,0 +1,87 @@
+def execute_commands(n, commands):
+    stack = []  # Stack to manage nested loops
+    output = []  # To store the printed output
+    i = 0
+
+    while i < n:
+        command = commands[i].strip()
+
+      
+        if command.startswith("for") and "times" in command:
+            try:
+                times = int(command.split()[1])  # Extract the number of iterations
+                stack.append({"type": "loop", "count": times, "current": 0, "skip": 0})
+            except ValueError:
+                raise ValueError(f"Invalid 'for' command syntax at line {i + 1}")
+
+        
+        elif command == "do":
+            stack.append({"type": "block"})
+
+        
+        elif command.startswith("print"):
+            if stack and stack[-1]["type"] == "loop" and stack[-1]["skip"] > 0:
+                stack[-1]["skip"] -= 1  # Skip this iteration
+            else:
+                # Extract the string to print and add to output
+                if " " in command:
+                    to_print = command.split(" ", 1)[1].strip().strip('"')
+                    output.append(to_print)
+                else:
+                    raise ValueError(f"Invalid 'print' command syntax at line {i + 1}")
+
+        
+        elif command.startswith("continue"):
+            try:
+                skip_count = int(command.split()[1])  # Extract the number of skips
+                if stack and stack[-1]["type"] == "loop":
+                    stack[-1]["skip"] = skip_count
+            except ValueError:
+                raise ValueError(f"Invalid 'continue' command syntax at line {i + 1}")
+
+
+        elif command.startswith("break"):
+            try:
+                break_count = int(command.split()[1])  
+                if stack and stack[-1]["type"] == "loop":
+                    stack[-1]["current"] += break_count
+                    if stack[-1]["current"] >= stack[-1]["count"]:
+                    
+                        while stack and stack[-1]["type"] != "loop":
+                            stack.pop()  
+                        stack.pop() 
+            except ValueError:
+                raise ValueError(f"Invalid 'break' command syntax at line {i + 1}")
+
+  
+        elif command == "done":
+            if stack and stack[-1]["type"] == "block":
+                stack.pop()  # Exit the current block
+            elif stack and stack[-1]["type"] == "loop":
+                loop = stack[-1]
+                loop["current"] += 1  # Increment loop iteration
+                if loop["current"] >= loop["count"]:
+                    stack.pop()  # Exit the loop
+                else:
+                    
+                    while stack and stack[-1]["type"] != "loop":
+                        stack.pop()
+                
+                    i -= 1
+        else:
+            raise ValueError(f"Unknown command at line {i + 1}: {command}")
+
+        i += 1
+
+    return output
+try:
+    n = int(input("Enter the number of commands: ").strip())
+    if n <= 0:
+        raise ValueError("Number of commands must be greater than 0.")
+
+    commands = [input(f"Command {i + 1}: ").strip() for i in range(n)]
+    result = execute_commands(n, commands)
+    print("\n".join(result))
+
+except Exception as e:
+    print(f"Error: {e}")
